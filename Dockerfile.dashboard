@@ -1,0 +1,39 @@
+# 🛡️ SECURE AI STUDIO - Web Dashboard Dockerfile
+# FastAPI web interface for monitoring
+
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r secureai && useradd -r -g secureai secureai
+
+# Install Python dependencies
+COPY requirements.dashboard.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# Create application directory
+RUN mkdir -p /app/{metrics,logs} && \
+    chown -R secureai:secureai /app
+
+# Copy dashboard application
+COPY --chown=secureai:secureai core/monitoring/web_dashboard.py /app/
+COPY --chown=secureai:secureai core/monitoring/__init__.py /app/core/monitoring/
+
+WORKDIR /app
+
+# Switch to non-root user
+USER secureai
+
+# Expose web interface port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Default command
+CMD ["uvicorn", "web_dashboard:app", "--host", "0.0.0.0", "--port", "8080"]

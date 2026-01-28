@@ -1,0 +1,180 @@
+# 🛡️ SECURE AI STUDIO - Environment Configuration
+# Docker Compose with complete IaC automation
+
+version: '3.8'
+
+services:
+  # Main AI Engine Service
+  secure-ai-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: secure-ai-studio-engine
+    restart: unless-stopped
+    environment:
+      - AIR_GAP_MODE=${AIR_GAP_MODE:-true}
+      - PYTHONUNBUFFERED=1
+      - MAX_CONCURRENT_JOBS=${MAX_CONCURRENT_JOBS:-4}
+      - MEMORY_LIMIT=${MEMORY_LIMIT:-8G}
+      - API_KEY=${API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - LOG_LEVEL=INFO
+    volumes:
+      # Encrypted volumes with proper permissions
+      - ./models:/app/models:ro  # Read-only for security
+      - ./output:/app/output     # Output directory
+      - ./logs:/app/logs         # Log persistence
+      - ./backup:/app/backup     # Backup storage
+      - ./config:/app/config:ro  # Read-only configuration
+      - ./metrics:/app/metrics   # Performance metrics
+    security_opt:
+      - no-new-privileges:true
+    read_only: false  # Need write access to output/logs/metrics
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=2g  # Secure temporary storage
+    networks:
+      - secure-ai-network
+    deploy:
+      resources:
+        limits:
+          memory: ${MEMORY_LIMIT:-12G}
+          cpus: '6'
+        reservations:
+          memory: 8G
+          cpus: '4'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import torch; print('Health OK')"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+    depends_on:
+      - redis-cache
+
+  # Redis Cache for Performance
+  redis-cache:
+    image: redis:7-alpine
+    container_name: secure-ai-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - secure-ai-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring Agent
+  monitoring-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.monitoring
+    container_name: secure-ai-monitoring
+    restart: unless-stopped
+    environment:
+      - MONITORING_INTERVAL=5
+      - EXPORT_FORMAT=json
+      - HARDWARE_MONITORING=true
+    volumes:
+      - ./metrics:/app/metrics
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # For container monitoring
+      - /proc:/proc:ro  # For system metrics
+    networks:
+      - secure-ai-network
+    depends_on:
+      - secure-ai-engine
+    healthcheck:
+      test: ["CMD", "python", "-c", "import psutil; print('Monitoring OK')"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  # Load Testing Service (for k6 integration)
+  load-test-runner:
+    image: grafana/k6:latest
+    container_name: secure-ai-load-tester
+    profiles: ["testing"]  # Only runs when specifically requested
+    volumes:
+      - ./tests/k6-scripts:/scripts
+      - ./test-results:/results
+    networks:
+      - secure-ai-network
+    command: ["k6", "run", "/scripts/basic_test.js"]
+
+  # Web Dashboard Service
+  web-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: secure-ai-dashboard
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # Web interface
+    environment:
+      - DASHBOARD_PORT=8080
+      - REFRESH_INTERVAL=5
+    volumes:
+      - ./metrics:/app/metrics:ro
+      - ./logs:/app/logs:ro
+    networks:
+      - secure-ai-network
+    depends_on:
+      - monitoring-agent
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Security Scanner (DAST)
+  security-scanner:
+    image: owasp/zap2docker-stable
+    container_name: secure-ai-security-scan
+    profiles: ["security"]  # Only runs for security scans
+    volumes:
+      - ./security-reports:/zap/reports
+    networks:
+      - secure-ai-network
+    command: ["zap.sh", "-cmd", "-quickurl", "http://secure-ai-engine:8000", "-quickout", "/zap/reports/report.html"]
+
+networks:
+  secure-ai-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
+
+volumes:
+  # Named volumes for persistent storage
+  redis-data:
+    driver: local
+  models-storage:
+    driver: local
+  logs-storage:
+    driver: local
+  metrics-storage:
+    driver: local
+
+# Development profile
+profiles:
+  development:
+    services:
+      - secure-ai-engine
+      - redis-cache
+      - monitoring-agent
+  production:
+    services:
+      - secure-ai-engine
+      - redis-cache
+      - monitoring-agent
+      - web-dashboard
+  testing:
+    services:
+      - secure-ai-engine
+      - load-test-runner
+  security:
+    services:
+      - security-scanner

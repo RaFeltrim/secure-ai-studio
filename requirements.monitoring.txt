@@ -1,0 +1,6 @@
+# 🛡️ SECURE AI STUDIO - Monitoring Requirements
+# Minimal dependencies for monitoring agent
+
+psutil==5.9.5
+GPUtil==1.4.0
+docker==6.1.3

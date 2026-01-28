@@ -1,0 +1,38 @@
+# 🛡️ SECURE AI STUDIO - Monitoring Agent Dockerfile
+# Lightweight monitoring container
+
+FROM python:3.11-alpine
+
+# Install system dependencies
+RUN apk add --no-cache \
+    procps \
+    util-linux \
+    lm_sensors
+
+# Create non-root user
+RUN addgroup -g 1001 secureai && \
+    adduser -D -u 1001 -G secureai secureai
+
+# Install Python dependencies
+COPY requirements.monitoring.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# Create application directory
+RUN mkdir -p /app/metrics && \
+    chown -R secureai:secureai /app
+
+# Copy monitoring agent
+COPY --chown=secureai:secureai core/monitoring/internal_monitoring_agent.py /app/
+COPY --chown=secureai:secureai core/monitoring/__init__.py /app/core/monitoring/
+
+WORKDIR /app
+
+# Switch to non-root user
+USER secureai
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "import psutil; print('OK')"
+
+# Default command
+CMD ["python", "internal_monitoring_agent.py"]

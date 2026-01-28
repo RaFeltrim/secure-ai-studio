@@ -1,0 +1,79 @@
+# 🛡️ SECURE AI STUDIO - Docker Compose Configuration
+version: '3.8'
+
+services:
+  secure-ai-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: secure-ai-studio
+    restart: unless-stopped
+    environment:
+      - AIR_GAP_MODE=true
+      - PYTHONUNBUFFERED=1
+      - MAX_MEMORY_USAGE=80  # Percentage threshold for health check
+    volumes:
+      # Encrypted volumes mapping (adjust paths as needed)
+      - ./models:/app/models:ro  # Read-only models for security
+      - ./output:/app/output     # Output directory
+      - ./logs:/app/logs         # Log persistence
+      - ./backup:/app/backup     # Backup storage
+      - ./config:/app/config:ro  # Read-only configuration
+    security_opt:
+      - no-new-privileges:true
+    read_only: false  # Need write access to output/logs
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=2g  # Secure temporary storage
+    networks:
+      - secure-ai-network
+    deploy:
+      resources:
+        limits:
+          memory: 12G    # Memory limit
+          cpus: '6'      # CPU limit
+        reservations:
+          memory: 8G     # Reserved memory
+          cpus: '4'      # Reserved CPUs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import torch; print('PyTorch OK')"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+
+  # Optional: Monitoring sidecar container
+  monitoring-agent:
+    image: prom/node-exporter:latest
+    container_name: ai-monitoring
+    restart: unless-stopped
+    volumes:
+      - /proc:/proc:ro
+      - /sys:/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/proc'
+      - '--path.sysfs=/sys'
+      - '--collector.filesystem.ignored-mount-points'
+      - '^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - secure-ai-network
+    depends_on:
+      - secure-ai-engine
+
+networks:
+  secure-ai-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+volumes:
+  # Named volumes for persistent storage
+  ai-models:
+    driver: local
+  ai-output:
+    driver: local
+  ai-logs:
+    driver: local

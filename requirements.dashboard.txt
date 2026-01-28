@@ -1,0 +1,7 @@
+# 🛡️ SECURE AI STUDIO - Dashboard Requirements
+# Dependencies for web dashboard
+
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+psutil==5.9.5
+GPUtil==1.4.0
