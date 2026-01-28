@@ -1,0 +1,386 @@
+{
+  "suite_name": "Sprint 2 Performance Benchmark",
+  "start_time": "2026-01-28T12:03:25.681511",
+  "end_time": "2026-01-28T12:03:35.303692",
+  "benchmarks": [
+    {
+      "test_name": "Latency_Test_Prompt_1",
+      "timestamp": "2026-01-28T12:03:31.034582",
+      "duration": 5.353,
+      "memory_usage_mb": 1617.5,
+      "cpu_percent": 79.1,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 1,
+      "details": {
+        "prompt": "A beautiful landscape painting with mountains and sunset",
+        "step_breakdown": {
+          "load_model": {
+            "duration": 1.095,
+            "memory_delta_mb": 176.6,
+            "cpu_peak_percent": 85.3
+          },
+          "preprocess": {
+            "duration": 0.803,
+            "memory_delta_mb": 174.5,
+            "cpu_peak_percent": 84.3
+          },
+          "inference": {
+            "duration": 3.812,
+            "memory_delta_mb": 193.4,
+            "cpu_peak_percent": 65.9
+          },
+          "postprocess": {
+            "duration": 0.542,
+            "memory_delta_mb": 107.0,
+            "cpu_peak_percent": 90.7
+          },
+          "save_output": {
+            "duration": 0.148,
+            "memory_delta_mb": 166.0,
+            "cpu_peak_percent": 69.3
+          }
+        },
+        "total_steps": 5
+      }
+    },
+    {
+      "test_name": "Latency_Test_Prompt_2",
+      "timestamp": "2026-01-28T12:03:31.537031",
+      "duration": 0.502,
+      "memory_usage_mb": 1549.4,
+      "cpu_percent": 79.2,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 1,
+      "details": {
+        "prompt": "Portrait of a person with detailed facial features and professional lighting",
+        "step_breakdown": {
+          "load_model": {
+            "duration": 1.194,
+            "memory_delta_mb": 169.1,
+            "cpu_peak_percent": 73.5
+          },
+          "preprocess": {
+            "duration": 0.529,
+            "memory_delta_mb": 181.2,
+            "cpu_peak_percent": 63.5
+          },
+          "inference": {
+            "duration": 2.497,
+            "memory_delta_mb": 102.6,
+            "cpu_peak_percent": 89.5
+          },
+          "postprocess": {
+            "duration": 0.477,
+            "memory_delta_mb": 127.1,
+            "cpu_peak_percent": 79.3
+          },
+          "save_output": {
+            "duration": 0.168,
+            "memory_delta_mb": 169.4,
+            "cpu_peak_percent": 90.4
+          }
+        },
+        "total_steps": 5
+      }
+    },
+    {
+      "test_name": "Latency_Test_Prompt_3",
+      "timestamp": "2026-01-28T12:03:32.041563",
+      "duration": 0.504,
+      "memory_usage_mb": 1446.9,
+      "cpu_percent": 74.7,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 1,
+      "details": {
+        "prompt": "Abstract geometric art with vibrant colors and modern design elements",
+        "step_breakdown": {
+          "load_model": {
+            "duration": 1.055,
+            "memory_delta_mb": 137.2,
+            "cpu_peak_percent": 64.7
+          },
+          "preprocess": {
+            "duration": 0.484,
+            "memory_delta_mb": 72.3,
+            "cpu_peak_percent": 75.0
+          },
+          "inference": {
+            "duration": 3.485,
+            "memory_delta_mb": 144.9,
+            "cpu_peak_percent": 85.4
+          },
+          "postprocess": {
+            "duration": 0.329,
+            "memory_delta_mb": 162.2,
+            "cpu_peak_percent": 80.4
+          },
+          "save_output": {
+            "duration": 0.176,
+            "memory_delta_mb": 130.3,
+            "cpu_peak_percent": 68.1
+          }
+        },
+        "total_steps": 5
+      }
+    },
+    {
+      "test_name": "Latency_Test_Prompt_4",
+      "timestamp": "2026-01-28T12:03:32.543852",
+      "duration": 0.502,
+      "memory_usage_mb": 1424.6,
+      "cpu_percent": 73.5,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 1,
+      "details": {
+        "prompt": "Technical diagram showing complex system architecture with labels",
+        "step_breakdown": {
+          "load_model": {
+            "duration": 1.3,
+            "memory_delta_mb": 66.7,
+            "cpu_peak_percent": 70.0
+          },
+          "preprocess": {
+            "duration": 0.759,
+            "memory_delta_mb": 127.4,
+            "cpu_peak_percent": 75.3
+          },
+          "inference": {
+            "duration": 2.911,
+            "memory_delta_mb": 163.5,
+            "cpu_peak_percent": 86.2
+          },
+          "postprocess": {
+            "duration": 0.524,
+            "memory_delta_mb": 73.7,
+            "cpu_peak_percent": 63.4
+          },
+          "save_output": {
+            "duration": 0.196,
+            "memory_delta_mb": 193.3,
+            "cpu_peak_percent": 72.8
+          }
+        },
+        "total_steps": 5
+      }
+    },
+    {
+      "test_name": "Latency_Test_Prompt_5",
+      "timestamp": "2026-01-28T12:03:33.046179",
+      "duration": 0.502,
+      "memory_usage_mb": 1325.7,
+      "cpu_percent": 72.5,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 1,
+      "details": {
+        "prompt": "Fantasy creature concept art with intricate details and dramatic pose",
+        "step_breakdown": {
+          "load_model": {
+            "duration": 0.752,
+            "memory_delta_mb": 86.2,
+            "cpu_peak_percent": 73.7
+          },
+          "preprocess": {
+            "duration": 0.5,
+            "memory_delta_mb": 53.1,
+            "cpu_peak_percent": 70.2
+          },
+          "inference": {
+            "duration": 2.419,
+            "memory_delta_mb": 139.0,
+            "cpu_peak_percent": 61.1
+          },
+          "postprocess": {
+            "duration": 0.535,
+            "memory_delta_mb": 78.3,
+            "cpu_peak_percent": 76.8
+          },
+          "save_output": {
+            "duration": 0.135,
+            "memory_delta_mb": 169.1,
+            "cpu_peak_percent": 80.8
+          }
+        },
+        "total_steps": 5
+      }
+    },
+    {
+      "test_name": "Load_Test_1_users",
+      "timestamp": "2026-01-28T12:03:33.248512",
+      "duration": 0.201,
+      "memory_usage_mb": 1150,
+      "cpu_percent": 38,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 1,
+      "details": {
+        "successful_requests": 1,
+        "total_requests": 1,
+        "success_rate": 1.0,
+        "avg_response_time": 3.362
+      }
+    },
+    {
+      "test_name": "Load_Test_3_users",
+      "timestamp": "2026-01-28T12:03:33.451252",
+      "duration": 0.202,
+      "memory_usage_mb": 1450,
+      "cpu_percent": 54,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 3,
+      "details": {
+        "successful_requests": 3,
+        "total_requests": 3,
+        "success_rate": 1.0,
+        "avg_response_time": 3.7
+      }
+    },
+    {
+      "test_name": "Load_Test_5_users",
+      "timestamp": "2026-01-28T12:03:33.653934",
+      "duration": 0.202,
+      "memory_usage_mb": 1750,
+      "cpu_percent": 70,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 5,
+      "details": {
+        "successful_requests": 5,
+        "total_requests": 5,
+        "success_rate": 1.0,
+        "avg_response_time": 3.765
+      }
+    },
+    {
+      "test_name": "Load_Test_10_users",
+      "timestamp": "2026-01-28T12:03:33.858188",
+      "duration": 0.204,
+      "memory_usage_mb": 2500,
+      "cpu_percent": 95,
+      "success": true,
+      "resolution": null,
+      "concurrent_users": 10,
+      "details": {
+        "successful_requests": 10,
+        "total_requests": 10,
+        "success_rate": 1.0,
+        "avg_response_time": 3.283
+      }
+    },
+    {
+      "test_name": "Resolution_512x512",
+      "timestamp": "2026-01-28T12:03:34.099543",
+      "duration": 2.397,
+      "memory_usage_mb": 823.4,
+      "cpu_percent": 37.9,
+      "success": true,
+      "resolution": [
+        512,
+        512
+      ],
+      "concurrent_users": 1,
+      "details": {
+        "scale_factor": 1.0,
+        "pixels": 262144,
+        "processing_complexity": "low"
+      }
+    },
+    {
+      "test_name": "Resolution_768x768",
+      "timestamp": "2026-01-28T12:03:34.400588",
+      "duration": 5.587,
+      "memory_usage_mb": 1454.0,
+      "cpu_percent": 79.0,
+      "success": true,
+      "resolution": [
+        768,
+        768
+      ],
+      "concurrent_users": 1,
+      "details": {
+        "scale_factor": 2.25,
+        "pixels": 589824,
+        "processing_complexity": "medium"
+      }
+    },
+    {
+      "test_name": "Resolution_1024x1024",
+      "timestamp": "2026-01-28T12:03:34.701451",
+      "duration": 8.811,
+      "memory_usage_mb": 2712.1,
+      "cpu_percent": 91.4,
+      "success": true,
+      "resolution": [
+        1024,
+        1024
+      ],
+      "concurrent_users": 1,
+      "details": {
+        "scale_factor": 4.0,
+        "pixels": 1048576,
+        "processing_complexity": "medium"
+      }
+    },
+    {
+      "test_name": "Resolution_2048x2048",
+      "timestamp": "2026-01-28T12:03:35.002293",
+      "duration": 26.261,
+      "memory_usage_mb": 5949.0,
+      "cpu_percent": 90.1,
+      "success": true,
+      "resolution": [
+        2048,
+        2048
+      ],
+      "concurrent_users": 1,
+      "details": {
+        "scale_factor": 16.0,
+        "pixels": 4194304,
+        "processing_complexity": "high"
+      }
+    },
+    {
+      "test_name": "Resolution_4096x4096",
+      "timestamp": "2026-01-28T12:03:35.303293",
+      "duration": 69.202,
+      "memory_usage_mb": 14783.8,
+      "cpu_percent": 91.6,
+      "success": true,
+      "resolution": [
+        4096,
+        4096
+      ],
+      "concurrent_users": 1,
+      "details": {
+        "scale_factor": 64.0,
+        "pixels": 16777216,
+        "processing_complexity": "high"
+      }
+    }
+  ],
+  "summary_stats": {
+    "total_tests": 14,
+    "successful_tests": 14,
+    "success_rate": 1.0,
+    "average_duration": 8.602,
+    "median_duration": 0.503,
+    "duration_std": 18.101,
+    "min_duration": 0.201,
+    "max_duration": 69.202,
+    "average_memory_mb": 2852.6,
+    "peak_memory_mb": 14783.8,
+    "median_memory_mb": 1501.7,
+    "average_cpu_percent": 73.3,
+    "peak_cpu_percent": 95,
+    "duration_percentiles": {
+      "p25": 0.278,
+      "p75": 5.528,
+      "p95": 41.29
+    }
+  }
+}

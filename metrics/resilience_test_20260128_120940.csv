@@ -1,0 +1,4 @@
+Test Name,Scenario,Duration (s),Recovery Time (s),Success,Timestamp
+T7_Video_Generation_Interruption,2-minute video generation interrupted at 780 frames,39.49,0.173,True,2026-01-28T12:09:35.544159
+T8_Memory_Pressure_Handling,Memory constrained environment (2048MB limit),1.928,0.301,False,2026-01-28T12:09:37.473536
+T9_Queue_Recovery_System,Queue processing with 2 failures and 2 recoveries,3.473,0,False,2026-01-28T12:09:40.947211

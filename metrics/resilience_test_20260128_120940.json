@@ -1,0 +1,95 @@
+{
+  "suite_name": "Sprint 3 Resilience Benchmark",
+  "start_time": "2026-01-28T12:08:56.053701",
+  "end_time": "2026-01-28T12:09:40.947513",
+  "tests": [
+    {
+      "test_name": "T7_Video_Generation_Interruption",
+      "timestamp": "2026-01-28T12:09:35.544159",
+      "scenario": "2-minute video generation interrupted at 780 frames",
+      "duration": 39.49,
+      "success": true,
+      "recovery_time": 0.173,
+      "error_details": {
+        "total_frames": 1200,
+        "interrupted_at_frame": 780,
+        "completion_percentage": 65.0,
+        "files_cleaned": 5,
+        "cleanup_success": true
+      },
+      "recovery_actions": [
+        "Process interruption detected at 780/1200 frames",
+        "Temporary files cleaned: 5 files removed",
+        "Queue state preserved for recovery",
+        "System resources released",
+        "Ready for next generation job"
+      ]
+    },
+    {
+      "test_name": "T8_Memory_Pressure_Handling",
+      "timestamp": "2026-01-28T12:09:37.473536",
+      "scenario": "Memory constrained environment (2048MB limit)",
+      "duration": 1.928,
+      "success": false,
+      "recovery_time": 0.301,
+      "error_details": {
+        "initial_available_gb": 12.0,
+        "memory_limit_mb": 2048,
+        "peak_allocation_mb": 2600,
+        "final_allocation_mb": 2200,
+        "error_detected": true,
+        "friendly_message": "\u26a0\ufe0f  Memory limit reached (2GB). Please reduce image resolution or complexity for better performance.",
+        "system_stabilized": true,
+        "allocation_phases": 5
+      },
+      "recovery_actions": [
+        "Memory pressure monitoring active",
+        "Graceful error messaging provided",
+        "Non-essential memory freed",
+        "System stability restored",
+        "No host system impact"
+      ]
+    },
+    {
+      "test_name": "T9_Queue_Recovery_System",
+      "timestamp": "2026-01-28T12:09:40.947211",
+      "scenario": "Queue processing with 2 failures and 2 recoveries",
+      "duration": 3.473,
+      "success": false,
+      "recovery_time": 0,
+      "error_details": {
+        "total_jobs": 8,
+        "completed_jobs": 8,
+        "failed_jobs": 2,
+        "retry_jobs": 2,
+        "recovery_rate": 1.0,
+        "queue_integrity": false
+      },
+      "recovery_actions": [
+        "Processed 8 jobs successfully",
+        "Recovered 2 jobs through retry mechanism",
+        "Failed jobs: 2",
+        "Overall success rate: 8/8 (100.0%)",
+        "Queue integrity maintained throughout process"
+      ]
+    }
+  ],
+  "summary_stats": {
+    "total_tests": 3,
+    "successful_tests": 1,
+    "success_rate": 0.3333333333333333,
+    "average_duration": 39.49,
+    "average_recovery_time": 0.173,
+    "total_test_time": 44.891,
+    "recovery_capabilities": {
+      "interruption_handling": true,
+      "memory_pressure_handling": false,
+      "queue_recovery": false
+    },
+    "test_categories": {
+      "interruption_tests": 1,
+      "memory_tests": 1,
+      "queue_tests": 1
+    }
+  }
+}
