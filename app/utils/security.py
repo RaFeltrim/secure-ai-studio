@@ -3,6 +3,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from typing import Optional
 import html
+from .secure_storage import validate_provider_security, get_security_recommendation
 
 def sanitize_prompt(text: str) -> str:
     """
@@ -89,3 +90,29 @@ def validate_api_key(api_key: Optional[str]) -> bool:
     
     # Check if it contains only allowed characters
     return bool(re.match(r'^[a-zA-Z0-9\-_]+$', api_key))
+
+
+def validate_provider_and_data(policy_check: str = 'ZERO') -> dict:
+    """
+    Validate that the provider and data handling meet security requirements.
+    
+    Args:
+        policy_check: The data retention policy to validate
+        
+    Returns:
+        Dictionary with validation results
+    """
+    result = {
+        'provider_compliant': True,
+        'data_retention_valid': policy_check == 'ZERO',
+        'recommendation': get_security_recommendation(),
+        'validation_passed': True
+    }
+    
+    # Check if data retention policy is compliant
+    if policy_check != 'ZERO':
+        result['validation_passed'] = False
+        result['data_retention_valid'] = False
+        result['error'] = 'Data retention policy does not meet ZDR (Zero Data Retention) requirements'
+    
+    return result

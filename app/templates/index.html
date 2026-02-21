@@ -113,6 +113,12 @@
                     <option value="image">Imagem</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="consentCheckbox" required> 
+                    Concordo que minha imagem será processada pelos servidores <span id="providerName">Luma AI</span> para geração de vídeo e será deletada após o processamento.
+                </label>
+            </div>
             <button type="submit" id="generateBtn">Gerar Mídia</button>
         </form>
         
@@ -146,7 +152,8 @@
                     },
                     body: JSON.stringify({
                         prompt: prompt,
-                        type: mediaType
+                        type: mediaType,
+                        consent: document.getElementById('consentCheckbox').checked
                     })
                 });
                 

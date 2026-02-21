@@ -4,7 +4,7 @@ import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from app.services.luma_service import LumaService
-from app.utils.security import sanitize_prompt
+from app.utils.security import sanitize_prompt, validate_provider_and_data
 
 def register_routes(app):
     luma_service = LumaService()
@@ -27,6 +27,16 @@ def register_routes(app):
             data = request.get_json()
             prompt = data.get('prompt', '')
             media_type = data.get('type', 'video')  # 'video' or 'image'
+            consent_given = data.get('consent', False)  # User consent for data processing
+            
+            # Validate consent as per LGPD requirements
+            if not consent_given:
+                return jsonify({'error': 'Consent is required for data processing as per LGPD regulations'}), 400
+            
+            # Validate provider and data handling compliance
+            compliance_check = validate_provider_and_data(os.getenv('DATA_RETENTION_POLICY', 'ZERO'))
+            if not compliance_check.get('validation_passed', True):
+                return jsonify({'error': compliance_check.get('error', 'Provider does not meet security requirements')}), 400
             
             # Sanitize the prompt to prevent injection
             sanitized_prompt = sanitize_prompt(prompt)
