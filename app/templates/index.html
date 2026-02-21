@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure AI Studio - Geração de Vídeo e Imagem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .loading {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .media-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        video, img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Secure AI Studio - Geração de Mídia</h1>
+        <form id="generationForm">
+            <div class="form-group">
+                <label for="prompt">Prompt:</label>
+                <input type="text" id="prompt" name="prompt" required placeholder="Descreva o que você deseja gerar...">
+            </div>
+            <div class="form-group">
+                <label for="mediaType">Tipo de Mídia:</label>
+                <select id="mediaType" name="type">
+                    <option value="video">Vídeo</option>
+                    <option value="image">Imagem</option>
+                </select>
+            </div>
+            <button type="submit" id="generateBtn">Gerar Mídia</button>
+        </form>
+        
+        <div id="result"></div>
+        <div id="progressContainer" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p>Status: <span id="statusText">Processando...</span></p>
+        </div>
+        <div id="mediaContainer" class="media-container" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('generationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('prompt').value;
+            const mediaType = document.getElementById('mediaType').value;
+            const generateBtn = document.getElementById('generateBtn');
+            
+            // Disable button and show loading
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Gerando...';
+            
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        type: mediaType
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Show progress container
+                    document.getElementById('progressContainer').style.display = 'block';
+                    
+                    // Start polling for status
+                    await pollStatus(data.task_id);
+                } else {
+                    showError(data.error || 'Erro desconhecido');
+                }
+            } catch (error) {
+                showError('Erro de conexão: ' + error.message);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Gerar Mídia';
+            }
+        });
+        
+        async function pollStatus(taskId) {
+            const statusText = document.getElementById('statusText');
+            const progressFill = document.getElementById('progressFill');
+            const mediaContainer = document.getElementById('mediaContainer');
+            
+            let progress = 0;
+            const maxPollAttempts = 100; // Prevent infinite polling
+            let attempts = 0;
+            
+            while (attempts < maxPollAttempts) {
+                try {
+                    const response = await fetch(`/api/status/${taskId}`);
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        statusText.textContent = data.message;
+                        
+                        // Update progress (simulated since API doesn't provide exact progress)
+                        progress = Math.min(progress + 5, 95); // Cap at 95 until complete
+                        progressFill.style.width = progress + '%';
+                        
+                        if (data.status === 'completed') {
+                            progressFill.style.width = '100%';
+                            
+                            // Display the generated media
+                            if (data.media_url) {
+                                if (document.getElementById('mediaType').value === 'video') {
+                                    mediaContainer.innerHTML = `
+                                        <video controls>
+                                            <source src="${data.media_url}" type="video/mp4">
+                                            Seu navegador não suporta o elemento de vídeo.
+                                        </video>
+                                        <a href="${data.media_url}" download class="download-btn">Baixar Vídeo</a>
+                                    `;
+                                } else {
+                                    mediaContainer.innerHTML = `
+                                        <img src="${data.media_url}" alt="Imagem Gerada">
+                                        <a href="${data.media_url}" download class="download-btn">Baixar Imagem</a>
+                                    `;
+                                }
+                                mediaContainer.style.display = 'block';
+                            }
+                            
+                            statusText.textContent = 'Concluído!';
+                            break;
+                        } else if (data.status === 'failed') {
+                            showError(data.message);
+                            break;
+                        }
+                    } else {
+                        showError(data.error || 'Erro ao verificar status');
+                        break;
+                    }
+                } catch (error) {
+                    console.error('Error polling status:', error);
+                    showError('Erro de conexão durante verificação de status');
+                    break;
+                }
+                
+                attempts++;
+                await sleep(5000); // Wait 5 seconds between polls
+            }
+        }
+        
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result error';
+            resultDiv.innerHTML = `<strong>Erro:</strong> ${message}`;
+        }
+        
+        function showSuccess(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result success';
+            resultDiv.innerHTML = `<strong>Sucesso:</strong> ${message}`;
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
