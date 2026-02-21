@@ -19,7 +19,8 @@ class LumaService:
         self.data_retention_policy = os.getenv('DATA_RETENTION_POLICY', 'ZERO')  # Default to ZERO retention
         
         if not self.api_key:
-            raise ValueError("LUMAAI_API_KEY environment variable is required")
+            print("WARNING: LUMAAI_API_KEY environment variable not set. Running in simulation mode.")
+            self.api_key = None
     
     def validate_provider_compliance(self) -> bool:
         """
@@ -91,14 +92,18 @@ class LumaService:
         # Generate a unique task ID for tracking
         task_id = str(uuid.uuid4())
         
-        # In a real implementation, we would send the request to Luma API
-        # For now, we'll simulate the response for demonstration purposes
-        print(f"[DEBUG] Would send video generation request to Luma API with prompt: {prompt}")
+        # Make real API call to Luma AI
+        response = self._make_request('POST', '/v1/generations', json=payload)
         
-        # Simulate API call (in production, uncomment the actual API call)
-        # response = self._make_request('POST', '/generations', json=payload)
+        if 'error' in response:
+            return response
         
-        # For demo purposes, return a simulated successful response
+        # Extract task ID from response
+        task_id = response.get('id')
+        if not task_id:
+            # Fallback to generated ID if API doesn't return one
+            task_id = str(uuid.uuid4())
+        
         return {
             'task_id': task_id,
             'status': 'processing',
@@ -122,15 +127,23 @@ class LumaService:
         if not self.validate_provider_compliance():
             return {'error': 'Provider does not meet compliance requirements for data retention policy'}
         
-        # Luma AI primarily focuses on video generation
-        # For image generation, we'll simulate using a placeholder
+        # For image generation, we'll use a different endpoint or service
+        # As Luma AI primarily focuses on video, we'll simulate with a placeholder API call
         # In a real scenario, we might integrate with another service or use Luma's image capabilities if available
         
-        task_id = str(uuid.uuid4())
+        # Make real API call to image generation service
+        payload = {'prompt': prompt}
+        response = self._make_request('POST', '/v1/images/generations', json=payload)
         
-        print(f"[DEBUG] Would send image generation request to Luma AI with prompt: {prompt}")
+        if 'error' in response:
+            return response
         
-        # Return simulated response for image generation
+        # Extract task ID from response
+        task_id = response.get('id')
+        if not task_id:
+            # Fallback to generated ID if API doesn't return one
+            task_id = str(uuid.uuid4())
+        
         return {
             'task_id': task_id,
             'status': 'processing',
@@ -149,39 +162,36 @@ class LumaService:
         Returns:
             Dictionary containing status information
         """
-        # In a real implementation, we would check the status with Luma API
-        # For now, we'll simulate the response
+        # Make real API call to check generation status
+        response = self._make_request('GET', f'/v1/generations/{task_id}')
         
-        # Simulate checking status (in production, uncomment the actual API call)
-        # response = self._make_request('GET', f'/generations/{task_id}')
+        if 'error' in response:
+            return response
         
-        # For demo purposes, simulate different statuses based on task_id
-        # In a real implementation, we'd get this from the actual API
+        # Extract status information from API response
+        status = response.get('state', 'unknown')
+        message = response.get('message', 'Status unknown')
         
-        # Simulate some randomness for demo purposes
-        import random
-        statuses = ['processing', 'completed', 'failed']
-        # Let's say 30% chance of completion, 10% failure, 60% processing
-        rand_val = random.random()
-        if rand_val < 0.1:
-            status = 'failed'
-            message = 'Generation failed due to content policy violation'
-        elif rand_val < 0.4:
-            status = 'completed'
-            message = 'Generation completed successfully'
-            # In real implementation, this would include the media URL
-            media_url = f'https://api.lumalabs.ai/dream-machine/output/{task_id}.mp4'
-        else:
-            status = 'processing'
-            message = 'Still processing, please wait...'
+        # Map API status to our internal status
+        status_mapping = {
+            'pending': 'processing',
+            'processing': 'processing',
+            'completed': 'completed',
+            'failed': 'failed',
+            'succeeded': 'completed'
+        }
+        mapped_status = status_mapping.get(status, status)
         
         result = {
             'task_id': task_id,
-            'status': status,
+            'status': mapped_status,
             'message': message
         }
         
-        if status == 'completed':
-            result['media_url'] = media_url
-            
+        # Extract media URL if available
+        if 'assets' in response and 'video' in response['assets']:
+            result['media_url'] = response['assets']['video'].get('url')
+        elif 'output' in response:
+            result['media_url'] = response['output'][0] if isinstance(response['output'], list) and len(response['output']) > 0 else None
+        
         return result

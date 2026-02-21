@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify, render_template
 import os
 from dotenv import load_dotenv
+from app.utils.logging_config import setup_logging
+
+# Setup logging
+setup_logging()
 
 # Load environment variables
 load_dotenv()

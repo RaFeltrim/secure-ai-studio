@@ -1,0 +1,4 @@
+# Test dependencies for Secure AI Studio
+pytest==7.4.3
+pytest-mock==3.12.0
+coverage==7.3.2

@@ -24,7 +24,7 @@ def sanitize_prompt(text: str) -> str:
         r'<\|.*?\|>',  # Template markers
         r'\{\{.*?\}\}',  # Double curly braces (template injection)
         r'\{\%.*?\%\}',  # Curly percentage (template injection)
-        r'(?i)(system|instruction|prompt|ignore|disregard).*?(?i)(previous|above|below|instructions|rules|commands)',
+        r'(?i)(system|instruction|prompt|ignore|disregard).*?(?:previous|above|below|instructions|rules|commands)',
         r'###.*?###',  # Triple hash separators
         r'---.*?---',  # Triple dash separators
         r'\[\[.*?\]\]',  # Double square brackets
