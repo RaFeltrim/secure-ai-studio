@@ -1,6 +1,6 @@
 # Secure AI Studio
 
-Uma aplicação segura e escalável para geração de vídeo e imagem utilizando IA Generativa, com foco em conformidade e segurança corporativa.
+Uma aplicação segura e escalável para geração de vídeo e imagem utilizando IA Generativa via Replicate API, com foco em conformidade e segurança corporativa.
 
 ## 🚀 Instalação
 
@@ -42,8 +42,8 @@ pip install -r requirements.txt
 Crie um arquivo `.env` na raiz do projeto com base no arquivo `.env.example`:
 
 ```env
-# Chave de API da Luma AI
-LUMAAI_API_KEY=sua_chave_aqui
+# Token de API da Replicate
+REPLICATE_API_TOKEN=seu_token_aqui
 
 # Chave secreta do Flask
 FLASK_SECRET_KEY=chave_secreta_segura_aqui
@@ -83,14 +83,16 @@ http://localhost:5000
 Este sistema implementa um plano de segurança em múltiplos níveis para proteger dados sensíveis, especialmente fotos e vídeos pessoais, conforme detalhado no plano de segurança:
 
 ### Nível 1: Escolha Estratégica do Provedor
-- Implementa verificação de conformidade do provedor (Luma AI, Google Vertex, Adobe Firefly)
-- Prioriza provedores com residência de dados no Brasil (Google Vertex AI southamerica-east1)
+- Implementa verificação de conformidade do provedor (Replicate com Wan Video, Google Veo)
+- Prioriza provedores com políticas de retenção de dados claras (ZDR - Zero Data Retention)
 - Fornece informações sobre níveis de risco de diferentes provedores
+- Garante que os dados sejam processados via API Replicate (EUA) com consentimento explícito
 
 ### Nível 2: Configurações de Conta e Contratuais
 - Validação de política de retenção de dados (ZDR - Zero Data Retention)
 - Opção de opt-out de treinamento de modelos com dados do usuário
 - Verificação de conformidade com termos de serviço
+- Sistema de controle de orçamento com limite de $5.00
 
 ### Nível 3: Arquitetura de Transferência Segura
 - Implementação de "pre-signed URLs" para transferência segura de arquivos
@@ -109,6 +111,42 @@ A aplicação implementa as seguintes medidas de segurança:
 - Separação de credenciais sensíveis
 - Mecanismo de consentimento explícito (LGPD)
 - Validação de URLs e formatos de arquivos
+- Controle rigoroso de orçamento com alertas e bloqueios automáticos
+
+## 💰 Controle de Orçamento e Seleção de Modelos
+
+O sistema implementa um controle de orçamento rigoroso com:
+
+- **Limite Total:** $5.00 de crédito
+- **Limite de Alerta:** 92% do orçamento ($4.60) - aviso quando se aproxima do limite
+- **Limite de Bloqueio:** 99% do orçamento ($4.95) - bloqueia novas gerações automaticamente
+- **Seleção de Modelos:**
+  - **Wan Video (padrão, econômico):** $0.02 por geração
+    - `wan-video/wan-2.2-t2v-fast` - texto para vídeo
+    - `wan-video/wan-2.2-i2v-fast` - imagem para vídeo
+  - **Google Veo (premium):** $0.10 por geração
+    - `google/veo-3-fast` - qualidade cinematográfica
+  - **Modelos de Imagem:**
+    - `stability-ai/sdxl` - $0.01 por geração
+    - `playgroundai/playground-v2.5-1024px-aesthetic` - $0.015 por geração
+
+### Endpoints de Orçamento:
+- `GET /api/budget-status` - Verifica o status atual do orçamento
+- `POST /api/reset-budget` - Reseta o orçamento (somente em modo de teste)
+
+## ▶️ Como Rodar
+
+1. Certifique-se de ter ativado o ambiente virtual e configurado as variáveis de ambiente.
+
+2. Execute a aplicação:
+```bash
+python app/main.py
+```
+
+3. Acesse a aplicação no navegador:
+```
+http://localhost:5000
+```
 
 ## 🏗️ Arquitetura
 
@@ -116,7 +154,7 @@ O projeto segue uma arquitetura modular baseada no padrão MVC:
 
 - `app/main.py` - Ponto de entrada da aplicação Flask
 - `app/routes.py` - Definição das rotas da API
-- `app/services/luma_service.py` - Lógica de negócio para integração com a API da Luma AI
+- `app/services/luma_service.py` - Lógica de negócio para integração com a API da Replicate (Wan Video e Google Veo)
 - `app/utils/security.py` - Funções de segurança e sanitização
 - `app/utils/secure_storage.py` - Gerenciamento seguro de arquivos com pre-signed URLs
 - `app/templates/` - Templates HTML da interface
@@ -136,12 +174,40 @@ O projeto segue uma arquitetura modular baseada no padrão MVC:
 
 - Python 3.8+
 - Flask (framework web)
-- Luma AI API (geração de vídeo e imagem)
+- Replicate API Client (geração de vídeo e imagem com Wan Video e Google Veo)
 - Flask-Limiter (controle de taxa)
 - python-dotenv (gerenciamento de variáveis de ambiente)
 - Requests (cliente HTTP)
 - Boto3 (integração com AWS S3 para armazenamento seguro)
 - HTML/CSS/JavaScript (interface web)
+
+## 🧪 Testes
+
+### Executar Testes
+
+Para executar todos os testes:
+```bash
+python -m pytest tests/ -v
+```
+
+Para executar testes específicos:
+```bash
+python -m pytest tests/test_luma_service.py -v
+python -m pytest tests/test_budget_service.py -v
+python -m pytest tests/test_api_endpoints.py -v
+```
+
+### Endpoints de Monitoramento
+
+- `GET /api/budget-status` - Status atual do orçamento
+- `GET /api/status/{task_id}` - Status de uma tarefa específica
+- `GET /` - Interface web principal
+
+### Cenários de Erro Comuns
+
+1. **Erro 402 (Payment Required)** - Orçamento excedido
+2. **Erro 400 (Bad Request)** - Dados inváldos ou consentimento faltando
+3. **Erro 429 (Too Many Requests)** - Limite de taxa atingido
 
 ---
 

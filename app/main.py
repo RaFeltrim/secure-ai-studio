@@ -10,7 +10,7 @@ setup_logging()
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'fallback-secret-key-for-testing')
 
 # Import routes after app is created to avoid circular imports
 from app.routes import register_routes

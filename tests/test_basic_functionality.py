@@ -6,7 +6,7 @@ import os
 # Add the app directory to the path so we can import modules
 sys.path.insert(0, os.path.abspath('.'))
 
-from app.services.luma_service import LumaService
+from app.services.luma_service import ReplicateService
 from app.utils.security import sanitize_prompt, validate_provider_and_data
 from app.utils.secure_storage import SecureStorageManager
 
@@ -21,16 +21,16 @@ class TestBasicFunctionality(unittest.TestCase):
         Set up test fixtures before each test method.
         """
         # Mock environment variables to avoid needing actual API keys during tests
-        os.environ['LUMAAI_API_KEY'] = 'test_key'
+        os.environ['REPLICATE_API_TOKEN'] = 'test_key'
         os.environ['DATA_RETENTION_POLICY'] = 'ZERO'
 
     def test_luma_service_initialization(self):
         """
-        Test that LumaService initializes correctly with mocked API key
+        Test that ReplicateService initializes correctly with mocked API key
         """
-        service = LumaService()
-        self.assertIsInstance(service, LumaService)
-        self.assertEqual(service.api_key, 'test_key')
+        service = ReplicateService()
+        self.assertIsInstance(service, ReplicateService)
+        self.assertEqual(service.api_token, 'test_key')
 
     def test_prompt_sanitization(self):
         """
@@ -96,90 +96,88 @@ class TestBasicFunctionality(unittest.TestCase):
         self.assertIn('_', filename)
         self.assertTrue(filename.endswith('.jpg'))
 
+    def test_budget_service_initialization(self):
+        """
+        Test that BudgetService initializes correctly
+        """
+        from app.services.budget_service import budget_service
+        # Reset budget to ensure clean state for this test
+        budget_service.reset_budget()
+        status = budget_service.get_budget_status()
+        
+        self.assertEqual(status['total_budget'], 5.0)
+        self.assertEqual(status['current_spending'], 0.0)
+        self.assertEqual(status['alert_amount'], 4.6)  # 92% of $5
+        self.assertEqual(status['block_amount'], 4.95)  # 99% of $5
+        self.assertFalse(status['alert_threshold_reached'])
+        self.assertFalse(status['block_threshold_reached'])
+
 
 class TestLumaServiceIntegration(unittest.TestCase):
     """
-    Integration tests for LumaService methods
+    Integration tests for ReplicateService methods
     """
     
     def setUp(self):
         """
         Set up test fixtures before each test method.
         """
-        os.environ['LUMAAI_API_KEY'] = 'test_key'
+        os.environ['REPLICATE_API_TOKEN'] = 'test_key'
         os.environ['DATA_RETENTION_POLICY'] = 'ZERO'
-        self.service = LumaService()
+        self.service = ReplicateService()
 
-    @patch('requests.request')
-    def test_generate_video_method(self, mock_request):
+    @patch.object(ReplicateService, '_simulate_replicate_call')
+    def test_generate_video_method(self, mock_simulate_call):
         """
         Test video generation method with mocked API response
         """
         # Mock successful API response
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            'id': 'test_task_id_123',
-            'state': 'processing',
-            'message': 'Video generation initiated successfully'
+        mock_simulate_call.return_value = {
+            'media_url': 'https://replicate.delivery/output.mp4',
+            'status': 'completed'
         }
-        mock_response.raise_for_status.return_value = None
-        mock_request.return_value = mock_response
 
         result = self.service.generate_video("A beautiful sunset")
         
         # Should return a task_id
         self.assertIn('task_id', result)
-        self.assertEqual(result['status'], 'processing')
-        self.assertEqual(result['provider'], 'Luma AI')
+        self.assertEqual(result['status'], 'completed')
+        self.assertIn('Replicate', result['provider'])
+        self.assertIn('model_used', result)
+        # Verify budget info is included
+        self.assertIn('budget_info', result)
 
-    @patch('requests.request')
-    def test_generate_image_method(self, mock_request):
+    @patch.object(ReplicateService, '_simulate_replicate_call')
+    def test_generate_image_method(self, mock_simulate_call):
         """
         Test image generation method with mocked API response
         """
         # Mock successful API response
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            'id': 'test_task_id_456',
-            'state': 'processing',
-            'message': 'Image generation initiated successfully'
+        mock_simulate_call.return_value = {
+            'media_url': 'https://replicate.delivery/output.png',
+            'status': 'completed'
         }
-        mock_response.raise_for_status.return_value = None
-        mock_request.return_value = mock_response
 
         result = self.service.generate_image("A colorful bird")
         
         # Should return a task_id
         self.assertIn('task_id', result)
-        self.assertEqual(result['status'], 'processing')
-        self.assertEqual(result['provider'], 'Luma AI')
+        self.assertEqual(result['status'], 'completed')
+        self.assertIn('Replicate', result['provider'])
+        self.assertIn('model_used', result)
+        # Verify budget info is included
+        self.assertIn('budget_info', result)
 
-    @patch('requests.request')
-    def test_check_status_method(self, mock_request):
+    def test_check_status_method(self):
         """
-        Test status checking method with mocked API response
+        Test status checking method (synchronous implementation)
         """
-        # Mock successful API response
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            'id': 'test_task_id_789',
-            'state': 'completed',
-            'message': 'Generation completed successfully',
-            'assets': {
-                'video': {
-                    'url': 'https://example.com/generated_video.mp4'
-                }
-            }
-        }
-        mock_response.raise_for_status.return_value = None
-        mock_request.return_value = mock_response
-
         result = self.service.check_status("test_task_id_789")
         
         # Should return the status information
         self.assertEqual(result['status'], 'completed')
         self.assertEqual(result['task_id'], 'test_task_id_789')
-        self.assertIn('media_url', result)
+        self.assertIn('Task completed synchronously', result['message'])
 
 
 if __name__ == '__main__':

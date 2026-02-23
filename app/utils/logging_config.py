@@ -22,8 +22,7 @@ def setup_logging():
         '"module": "%(module)s", '
         '"function": "%(funcName)s", '
         '"line": %(lineno)d, '
-        '"message": "%(message)s", '
-        '"extra_data": %(extra_data)s}'
+        '"message": "%(message)s"}'
     )
     
     # Configure root logger
@@ -64,7 +63,7 @@ def log_api_call(endpoint: str, method: str, status_code: int, user_id: str = No
         "extra_data": extra_data or {}
     }
     
-    logger.info("API_CALL", extra={"extra_data": json.dumps(log_data)})
+    logger.info(f"API_CALL: {json.dumps(log_data)}")
 
 
 def log_security_event(event_type: str, user_id: str, ip_address: str, details: dict = None):
@@ -81,7 +80,7 @@ def log_security_event(event_type: str, user_id: str, ip_address: str, details: 
         "details": details or {}
     }
     
-    logger.warning("SECURITY_EVENT", extra={"extra_data": json.dumps(log_data)})
+    logger.warning(f"SECURITY_EVENT: {json.dumps(log_data)}")
 
 
 def log_generation_request(user_id: str, prompt: str, media_type: str, provider: str):
@@ -99,7 +98,7 @@ def log_generation_request(user_id: str, prompt: str, media_type: str, provider:
         "timestamp": datetime.utcnow().isoformat()
     }
     
-    logger.info("GENERATION_REQUEST", extra={"extra_data": json.dumps(log_data)})
+    logger.info(f"GENERATION_REQUEST: {json.dumps(log_data)}")
 
 
 def log_consent_action(user_id: str, consent_given: bool, consent_details: dict = None):
@@ -116,4 +115,4 @@ def log_consent_action(user_id: str, consent_given: bool, consent_details: dict 
         "details": consent_details or {}
     }
     
-    logger.info("CONSENT_LOGGED", extra={"extra_data": json.dumps(log_data)})
+    logger.info(f"CONSENT_LOGGED: {json.dumps(log_data)}")
