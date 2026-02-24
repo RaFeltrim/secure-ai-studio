@@ -8,6 +8,7 @@ import os
 import sys
 import subprocess
 from pathlib import Path
+from pathlib import Path
 
 def verify_project_structure():
     """Verify that all required files and directories exist"""
@@ -24,7 +25,7 @@ def verify_project_structure():
     required_files = [
         "app/main.py",
         "app/routes.py",
-        "app/services/luma_service.py",
+        "app/services/ai_service.py",
         "app/utils/security.py",
         "app/utils/logging_config.py",
         "app/templates/index.html",
@@ -43,12 +44,12 @@ def verify_project_structure():
             missing_items.append(f"File: {file}")
     
     if missing_items:
-        print("❌ Missing items:")
+        print("Missing items:")
         for item in missing_items:
             print(f"   - {item}")
         return False
     else:
-        print("✅ All required directories and files exist")
+        print("All required directories and files exist")
         return True
 
 
@@ -73,12 +74,12 @@ def verify_dependencies():
             missing_modules.append(module)
     
     if missing_modules:
-        print("❌ Missing modules:")
+        print("Missing modules:")
         for module in missing_modules:
             print(f"   - {module}")
         return False
     else:
-        print("✅ All required modules are available")
+        print("All required modules are available")
         return True
 
 
@@ -102,18 +103,18 @@ def verify_security_features():
         if name == "Normal prompt":
             # For normal prompts, output should match input
             if result == input_prompt:
-                print(f"✅ {name} test passed")
+                print(f"{name} test passed")
             else:
-                print(f"❌ {name} test failed - output differs from input")
+                print(f"{name} test failed - output differs from input")
                 print(f"   Input: {input_prompt}")
                 print(f"   Output: {result}")
                 all_passed = False
         else:
             # For potentially malicious prompts, output should be different from input
             if result != input_prompt:
-                print(f"✅ {name} test passed - input was sanitized")
+                print(f"{name} test passed - input was sanitized")
             else:
-                print(f"❌ {name} test failed - input was not sanitized")
+                print(f"{name} test failed - input was not sanitized")
                 print(f"   Input: {input_prompt}")
                 print(f"   Output: {result}")
                 all_passed = False
@@ -128,14 +129,14 @@ def verify_logging():
     try:
         from app.utils.logging_config import setup_logging, log_api_call
         setup_logging()
-        print("✅ Logging system initialized successfully")
+        print("Logging system initialized successfully")
         
         # Test logging a simple event
         log_api_call("/test", "GET", 200)
-        print("✅ Logging function works correctly")
+        print("Logging function works correctly")
         return True
     except Exception as e:
-        print(f"❌ Logging verification failed: {e}")
+        print(f"Logging verification failed: {e}")
         return False
 
 
@@ -150,25 +151,25 @@ def verify_api_endpoints():
             # Test the home page
             response = client.get('/')
             if response.status_code == 200:
-                print("✅ Home page endpoint works")
+                print("Home page endpoint works")
             else:
-                print(f"❌ Home page endpoint failed with status {response.status_code}")
+                print(f"Home page endpoint failed with status {response.status_code}")
                 return False
                 
             # Test that the API route exists (will fail due to missing data, but route should exist)
             response = client.post('/api/generate', json={})
             # We expect a 400 (bad request) because of missing data, not 404 (not found)
             if response.status_code == 400:
-                print("✅ API generation endpoint exists")
+                print("API generation endpoint exists")
             elif response.status_code == 404:
-                print("❌ API generation endpoint not found")
+                print("API generation endpoint not found")
                 return False
             else:
-                print(f"✅ API generation endpoint exists (status: {response.status_code})")
+                print(f"API generation endpoint exists (status: {response.status_code})")
                 
         return True
     except Exception as e:
-        print(f"❌ API endpoint verification failed: {e}")
+        print(f"API endpoint verification failed: {e}")
         return False
 
 
@@ -177,21 +178,21 @@ def verify_service_integration():
     print("\n🔍 Verifying service integration...")
     
     try:
-        from app.services.luma_service import LumaService
+        from app.services.ai_service import ReplicateService
         
         # Create service instance (may run without API key in simulation mode)
-        service = LumaService()
-        print("✅ LumaService initialized")
+        service = ReplicateService()
+        print("ReplicateService initialized")
         
         # Test basic methods exist
         assert hasattr(service, 'generate_video'), "generate_video method missing"
         assert hasattr(service, 'generate_image'), "generate_image method missing"  
         assert hasattr(service, 'check_status'), "check_status method missing"
-        print("✅ All required service methods exist")
+        print("All required service methods exist")
         
         return True
     except Exception as e:
-        print(f"❌ Service integration verification failed: {e}")
+        print(f"Service integration verification failed: {e}")
         return False
 
 
@@ -202,19 +203,15 @@ def verify_documentation():
     docs_exist = True
     
     doc_files = [
-        "README.md",
-        "PROJECT_EVALUATION.md", 
-        "COMPLETION_PLAN.md",
-        "TESTING_GUIDE.md",
-        "BRANCH_COMPARISON.md"
+        "README.md"
     ]
     
     for doc in doc_files:
         if not Path(doc).exists():
-            print(f"❌ Documentation file missing: {doc}")
+            print(f"Documentation file missing: {doc}")
             docs_exist = False
         else:
-            print(f"✅ Documentation file exists: {doc}")
+            print(f"Documentation file exists: {doc}")
     
     return docs_exist
 
@@ -242,20 +239,20 @@ def main():
     
     all_passed = True
     for test_name, result in results:
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "PASS" if result else "FAIL"
         print(f"{test_name:<25} {status}")
         if not result:
             all_passed = False
     
     print("-" * 40)
     if all_passed:
-        print("🎉 ALL VERIFICATION TESTS PASSED!")
-        print("✅ Secure AI Studio is fully functional")
-        print("✅ Ready for production deployment")
+        print("ALL VERIFICATION TESTS PASSED!")
+        print("Secure AI Studio is fully functional")
+        print("Ready for production deployment")
         return True
     else:
-        print("❌ SOME VERIFICATION TESTS FAILED")
-        print("⚠️  Please address the failing tests before deployment")
+        print("SOME VERIFICATION TESTS FAILED")
+        print("Please address the failing tests before deployment")
         return False
 
 

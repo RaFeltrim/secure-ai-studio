@@ -3,7 +3,7 @@ from functools import wraps
 import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from app.services.luma_service import ReplicateService
+from app.services.ai_service import ReplicateService
 from app.services.budget_service import budget_service
 from app.utils.security import sanitize_prompt, validate_provider_and_data
 from app.utils.logging_config import log_api_call, log_generation_request, log_consent_action, log_security_event
@@ -11,8 +11,8 @@ import logging
 import os
 
 def register_routes(app):
-    global luma_service
-    luma_service = ReplicateService()
+    global ai_service
+    ai_service = ReplicateService()
     
     # Check if we're in testing mode
     TESTING_MODE = os.environ.get('FLASK_TESTING', '').lower() == 'true'
@@ -77,10 +77,10 @@ def register_routes(app):
             
             # Generate media based on type
             if media_type == 'image':
-                result = luma_service.generate_image(sanitized_prompt, model_type=model_type)
+                result = ai_service.generate_image(sanitized_prompt, model_type=model_type)
             else:
                 # Default to video generation using selected model
-                result = luma_service.generate_video(sanitized_prompt, model_type=model_type)
+                result = ai_service.generate_video(sanitized_prompt, model_type=model_type)
                 
             if 'error' in result:
                 # Check if the error is budget-related
@@ -114,7 +114,7 @@ def register_routes(app):
             # Log the API call
             log_api_call(f'/api/status/{task_id}', 'GET', 200, 'anonymous', {'task_id': task_id})
             
-            status = luma_service.check_status(task_id)
+            status = ai_service.check_status(task_id)
             
             # Log status check
             logging.info(f"Status check for task {task_id}: {status.get('status', 'unknown')}")

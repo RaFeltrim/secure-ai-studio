@@ -10,7 +10,7 @@ from unittest.mock import patch, MagicMock
 # Add the app directory to the path so we can import modules
 sys.path.insert(0, os.path.abspath('.'))
 
-from app.services.luma_service import ReplicateService
+from app.services.ai_service import ReplicateService
 from app.services.budget_service import budget_service
 from app.utils.security import sanitize_prompt, validate_provider_and_data
 from app.utils.logging_config import setup_logging
@@ -30,7 +30,7 @@ class TestCoreFunctionality(unittest.TestCase):
         os.environ['DATA_RETENTION_POLICY'] = 'ZERO'
         os.environ['FLASK_ENV'] = 'testing'
         
-    def test_luma_service_initialization(self):
+    def test_ai_service_initialization(self):
         """
         Test that ReplicateService initializes correctly
         """

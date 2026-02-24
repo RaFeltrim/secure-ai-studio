@@ -1,0 +1,41 @@
+name: Secure AI Studio CI/CD
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-mock
+        
+    - name: Run Tests with Mocks
+      env:
+        FLASK_ENV: testing
+        DATA_RETENTION_POLICY: ZERO
+        REPLICATE_API_TOKEN: dummy_token_for_ci
+        FLASK_SECRET_KEY: dummy_secret_key
+      run: |
+        python -m pytest tests/ --cov=app --cov-report=xml -v
+        
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: secure-ai-studio-coverage

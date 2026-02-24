@@ -70,7 +70,7 @@ class TestAPIEndpoints(unittest.TestCase):
         }
         
         # Mock the ReplicateService calls
-        with patch('app.services.luma_service.ReplicateService.generate_image') as mock_gen:
+        with patch('app.services.ai_service.ReplicateService.generate_image') as mock_gen:
             mock_gen.return_value = {
                 'task_id': 'test_task_123',
                 'status': 'processing',
@@ -96,7 +96,7 @@ class TestAPIEndpoints(unittest.TestCase):
         }
         
         # Mock the LumaService calls
-        with patch('app.services.luma_service.ReplicateService.generate_video') as mock_gen:
+        with patch('app.services.ai_service.ReplicateService.generate_video') as mock_gen:
             mock_gen.return_value = {
                 'task_id': 'test_task_456',
                 'status': 'processing',
@@ -132,7 +132,7 @@ class TestAPIEndpoints(unittest.TestCase):
         task_id = 'test_task_789'
         
         # Mock the ReplicateService call
-        with patch('app.services.luma_service.ReplicateService.check_status') as mock_status:
+        with patch('app.services.ai_service.ReplicateService.check_status') as mock_status:
             mock_status.return_value = {
                 'task_id': task_id,
                 'status': 'completed',
@@ -153,7 +153,7 @@ class TestAPIEndpoints(unittest.TestCase):
         task_id = 'nonexistent_task'
         
         # Mock the LumaService call to raise an exception
-        with patch('app.services.luma_service.ReplicateService.check_status') as mock_status:
+        with patch('app.services.ai_service.ReplicateService.check_status') as mock_status:
             mock_status.side_effect = Exception("Task not found")
             
             response = self.client.get(f'/api/status/{task_id}')
@@ -173,7 +173,7 @@ class TestAPIEndpoints(unittest.TestCase):
         }
         
         # Mock the LumaService calls
-        with patch('app.services.luma_service.ReplicateService.generate_image') as mock_gen:
+        with patch('app.services.ai_service.ReplicateService.generate_image') as mock_gen:
             mock_gen.return_value = {
                 'task_id': 'test_task_sanitized',
                 'status': 'processing',
@@ -199,7 +199,7 @@ class TestAPIEndpoints(unittest.TestCase):
         }
         
         # Mock the ReplicateService calls
-        with patch('app.services.luma_service.ReplicateService.generate_image') as mock_gen:
+        with patch('app.services.ai_service.ReplicateService.generate_image') as mock_gen:
             mock_gen.return_value = {
                 'task_id': 'test_rate_limit',
                 'status': 'processing',
@@ -219,7 +219,7 @@ class TestAPIEndpoints(unittest.TestCase):
         task_id = 'test_rate_limit_status'
         
         # Mock the ReplicateService call
-        with patch('app.services.luma_service.ReplicateService.check_status') as mock_status:
+        with patch('app.services.ai_service.ReplicateService.check_status') as mock_status:
             mock_status.return_value = {
                 'task_id': task_id,
                 'status': 'processing',

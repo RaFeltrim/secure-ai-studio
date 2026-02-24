@@ -6,7 +6,7 @@ import os
 # Add the app directory to the path so we can import modules
 sys.path.insert(0, os.path.abspath('.'))
 
-from app.services.luma_service import ReplicateService
+from app.services.ai_service import ReplicateService
 from app.utils.security import sanitize_prompt, validate_provider_and_data
 from app.utils.secure_storage import SecureStorageManager
 
@@ -24,7 +24,7 @@ class TestBasicFunctionality(unittest.TestCase):
         os.environ['REPLICATE_API_TOKEN'] = 'test_key'
         os.environ['DATA_RETENTION_POLICY'] = 'ZERO'
 
-    def test_luma_service_initialization(self):
+    def test_ai_service_initialization(self):
         """
         Test that ReplicateService initializes correctly with mocked API key
         """
@@ -113,7 +113,7 @@ class TestBasicFunctionality(unittest.TestCase):
         self.assertFalse(status['block_threshold_reached'])
 
 
-class TestLumaServiceIntegration(unittest.TestCase):
+class TestAIServiceIntegration(unittest.TestCase):
     """
     Integration tests for ReplicateService methods
     """

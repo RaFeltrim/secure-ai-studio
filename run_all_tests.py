@@ -79,7 +79,7 @@ def main():
     
     # Test 2: Security Tests
     success, stdout, stderr, duration = run_command(
-        "python -m pytest tests/test_security_utils.py tests/test_luma_service.py -v --tb=short",
+        "python -m pytest tests/test_security_utils.py tests/test_ai_service.py -v --tb=short",
         "Running Security Tests",
         cwd=os.getcwd()
     )

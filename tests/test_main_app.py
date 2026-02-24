@@ -73,7 +73,7 @@ class TestMainApp(unittest.TestCase):
         
         try:
             # Re-import to test initialization without API key
-            from app.services.luma_service import ReplicateService
+            from app.services.ai_service import ReplicateService
             service = ReplicateService()
             # Should initialize without raising exception
             self.assertIsNotNone(service)
@@ -110,13 +110,13 @@ class TestMainApp(unittest.TestCase):
         else:
             os.environ.pop('DATA_RETENTION_POLICY', None)
 
-    @patch('app.routes.luma_service')
-    def test_app_with_mocked_services(self, mock_luma_service):
+    @patch('app.routes.ai_service')
+    def test_app_with_mocked_services(self, mock_ai_service):
         """
         Test app behavior with mocked services
         """
         # Mock the service to return known values
-        mock_luma_service.generate_image.return_value = {
+        mock_ai_service.generate_image.return_value = {
             'task_id': 'mock_task_123',
             'status': 'processing',
             'message': 'Mock generation initiated',
@@ -171,8 +171,8 @@ class TestMainAppIntegration(unittest.TestCase):
         }
         
         # Mock the service calls to avoid actual API calls
-        with patch('app.services.luma_service.ReplicateService.generate_image') as mock_gen, \
-             patch('app.services.luma_service.ReplicateService.check_status') as mock_status:
+        with patch('app.services.ai_service.ReplicateService.generate_image') as mock_gen, \
+             patch('app.services.ai_service.ReplicateService.check_status') as mock_status:
             
             mock_gen.return_value = {
                 'task_id': 'flow_test_123',
@@ -208,7 +208,7 @@ class TestMainAppIntegration(unittest.TestCase):
         }
         
         # Mock the service to avoid actual API calls
-        with patch('app.services.luma_service.ReplicateService.generate_image') as mock_gen:
+        with patch('app.services.ai_service.ReplicateService.generate_image') as mock_gen:
             mock_gen.return_value = {
                 'task_id': 'rate_test_123',
                 'status': 'processing',
@@ -242,7 +242,7 @@ class TestMainAppIntegration(unittest.TestCase):
                 
                 # Mock the appropriate service method
                 if test_case['type'] == 'image':
-                    with patch('app.services.luma_service.ReplicateService.generate_image') as mock_gen:
+                    with patch('app.services.ai_service.ReplicateService.generate_image') as mock_gen:
                         mock_gen.return_value = {
                             'task_id': f"test_{test_case['type']}_123",
                             'status': 'processing',
@@ -251,7 +251,7 @@ class TestMainAppIntegration(unittest.TestCase):
                             'compliance_verified': True
                         }
                 else:  # video
-                    with patch('app.services.luma_service.ReplicateService.generate_video') as mock_gen:
+                    with patch('app.services.ai_service.ReplicateService.generate_video') as mock_gen:
                         mock_gen.return_value = {
                             'task_id': f"test_{test_case['type']}_123",
                             'status': 'processing',
@@ -280,7 +280,7 @@ class TestMainAppIntegration(unittest.TestCase):
         }
         
         # Mock the service to avoid actual API calls
-        with patch('app.services.luma_service.ReplicateService.generate_image') as mock_gen:
+        with patch('app.services.ai_service.ReplicateService.generate_image') as mock_gen:
             # Configure mock to return a proper dictionary
             mock_gen.return_value = {
                 'task_id': 'test_task_123',

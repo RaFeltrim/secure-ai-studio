@@ -119,7 +119,7 @@ def main():
     # Define test suites
     test_suites = [
         ("Security Utilities", "test_security_utils.py"),
-        ("Luma Service", "test_luma_service.py"), 
+        ("AI Service", "test_ai_service.py"), 
         ("API Endpoints", "test_api_endpoints.py"),
         ("Secure Storage", "test_secure_storage.py"),
         ("Logging System", "test_logging.py"),

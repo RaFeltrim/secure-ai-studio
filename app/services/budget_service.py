@@ -4,6 +4,7 @@ Implements the 92% alert threshold and 99% blocking limit as specified.
 """
 
 import os
+import json
 import threading
 from datetime import datetime
 from typing import Dict, Any, Optional
@@ -28,8 +29,12 @@ class BudgetService:
         self.alert_amount = self.total_budget * self.alert_threshold  # $4.60
         self.block_amount = self.total_budget * self.block_threshold  # $4.95
         
-        # Track current spending
-        self.current_spending = Decimal('0.00')
+        # Setup persistence
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.state_file = os.path.join(base_dir, 'data', 'budget_state.json')
+        
+        # Track current spending loaded from disk
+        self.current_spending = self._load_state()
         
         # Lock for thread safety
         self._lock = threading.Lock()
@@ -58,6 +63,29 @@ class BudgetService:
                 'stability-ai/sdxl': Decimal('0.005'),
                 'playgroundai/playground-v2.5-1024px-aesthetic': Decimal('0.0075'),
             }
+
+    def _load_state(self) -> Decimal:
+        """Load budget state from disk."""
+        try:
+            if os.path.exists(self.state_file):
+                with open(self.state_file, 'r') as f:
+                    data = json.load(f)
+                    return Decimal(str(data.get('current_spending', '0.00')))
+        except Exception as e:
+            print(f"Error loading budget state: {e}")
+        return Decimal('0.00')
+
+    def _save_state(self):
+        """Save budget state to disk."""
+        try:
+            os.makedirs(os.path.dirname(self.state_file), exist_ok=True)
+            with open(self.state_file, 'w') as f:
+                json.dump({
+                    'current_spending': str(self.current_spending),
+                    'last_updated': datetime.now().isoformat()
+                }, f)
+        except Exception as e:
+            print(f"Error saving budget state: {e}")
 
     def get_cost_for_model(self, model_name: str) -> Decimal:
         """
@@ -145,6 +173,7 @@ class BudgetService:
             # Convert to Decimal if current_spending is not already
             current_as_decimal = Decimal(str(self.current_spending)) if not isinstance(self.current_spending, Decimal) else self.current_spending
             self.current_spending = current_as_decimal + cost  # Store as Decimal
+            self._save_state()
             
             # Check if we've crossed thresholds after recording
             if self.current_spending > self.block_amount:
@@ -191,6 +220,7 @@ class BudgetService:
         """
         with self._lock:
             self.current_spending = Decimal('0.00')
+            self._save_state()
 
     def set_current_spending_for_testing(self, value):
         """
@@ -201,6 +231,7 @@ class BudgetService:
                 self.current_spending = Decimal(str(value))
             else:
                 self.current_spending = value
+            self._save_state()
 
 
 # Global budget service instance

@@ -7,7 +7,7 @@ from datetime import datetime
 # Add the app directory to the path so we can import modules
 sys.path.insert(0, os.path.abspath('.'))
 
-from app.services.luma_service import ReplicateService
+from app.services.ai_service import ReplicateService
 
 
 class TestReplicateService(unittest.TestCase):
